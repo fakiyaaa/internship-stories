@@ -278,3 +278,21 @@ header button.active {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--cream); }
 ::-webkit-scrollbar-thumb { background: var(--sand); border-radius: 4px; }
+
+.story-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.story-actions button {
+  border: none;
+  background: #f3f3f3;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.story-actions button:hover {
+  background: #e7e7e7;
+}

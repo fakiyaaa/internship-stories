@@ -5,32 +5,59 @@ import StoryPage from "./components/StoryPage"
 
 function App() {
   const [page, setPage] = useState("home")
-  const [selectedStory, setSelectedStory] = useState(null)
-
-
-  const stories = [
-  {
+  const [selectedStory, setSelectedStory] = useState(null)  
+  const [stories, setStories] = useState(
+    [
+      {
     id: 1,
     company: "Netflix",
     role: "Software Engineer Intern",
     headline: "FAANG internship journey",
-    summary: "My experience working at Netflix."
+    summary: "My experience working at Netflix.",
+    likes: 1,
+    saved: false 
   },
   {
     id: 2,
     company: "Google",
     role: "Software Engineering Intern",
     headline: "Building ML pipelines",
-    summary: "I worked on search ranking systems."
+    summary: "I worked on search ranking systems.",
+    likes: 4,
+    saved: false 
   },
   {
     id: 3,
     company: "NASA",
     role: "Aerospace Intern",
     headline: "Working on spacecraft simulations",
-    summary: "Thermal modeling for space missions."
+    summary: "Thermal modeling for space missions.",
+    likes: 10,
+    saved: false 
   }
-]
+    ])
+
+    function handleLike(id) {
+    setStories(
+      stories.map((story) =>
+        story.id === id
+          ? { ...story, likes: story.likes + 1 }
+          : story
+      )
+    )
+  }
+
+    function handleSave(id) {
+    setStories(
+      stories.map((story) =>
+        story.id === id
+          ? { ...story, saved: !story.saved }
+          : story
+      )
+    )
+  }
+
+
 
   return (
     <div>
@@ -43,6 +70,8 @@ function App() {
           stories={stories} 
           setSelectedStory = {setSelectedStory}
           setPage = {setPage}
+          onLike={handleLike}
+          onSave={handleSave}
         />
       )}
 
