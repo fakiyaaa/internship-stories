@@ -1,0 +1,73 @@
+/* ============================================
+   NEW STORY PAGE
+   ============================================ */
+
+.new-story-page {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 0 24px;
+}
+
+.new-story-page h2 {
+  font-family: "Playfair Display", serif;
+  font-size: 32px;
+  margin-bottom: 24px;
+}
+
+.new-story-page form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.new-story-page input,
+.new-story-page textarea {
+  border: 1px solid var(--sand);
+  border-radius: 10px;
+
+  padding: 12px 14px;
+
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+
+  background: white;
+
+  transition: border 0.15s ease;
+}
+
+.new-story-page input:focus,
+.new-story-page textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.new-story-page textarea {
+  min-height: 160px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.new-story-page button {
+  margin-top: 10px;
+
+  border: none;
+  border-radius: 8px;
+
+  padding: 12px 18px;
+
+  background: var(--ink);
+  color: var(--cream);
+
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+  width: fit-content;
+
+  transition: opacity 0.15s ease;
+}
+
+.new-story-page button:hover {
+  opacity: 0.85;
+}

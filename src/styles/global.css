@@ -1,0 +1,44 @@
+/* ============================================
+   FONTS & RESET
+   ============================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --cream: #faf9f7;
+  --paper: #f5f3ef;
+  --sand: #e8e2d9;
+  --ink: #1a1814;
+  --ink2: #3d3a35;
+  --ink3: #7a7570;
+  --accent: #c17f3e;
+  --accent-light: #fdf3e7;
+  --accent-border: #e8d5b8;
+}
+
+body {
+  background-color: var(--cream);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   APP WRAPPER
+   ============================================ */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app > h1 {
+  display: none;
+}

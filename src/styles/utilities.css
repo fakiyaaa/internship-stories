@@ -1,0 +1,51 @@
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--paper);
+  border: 1px solid var(--sand);
+  color: var(--ink3);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tag.active {
+  background: var(--ink);
+  color: var(--cream);
+  border-color: var(--ink);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fadeUp 0.45s ease both;
+}
+
+.fade-up:nth-child(1) { animation-delay: 0.00s; }
+.fade-up:nth-child(2) { animation-delay: 0.07s; }
+.fade-up:nth-child(3) { animation-delay: 0.14s; }
+.fade-up:nth-child(4) { animation-delay: 0.21s; }
+.fade-up:nth-child(5) { animation-delay: 0.28s; }
+.fade-up:nth-child(6) { animation-delay: 0.35s; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb { background: var(--sand); border-radius: 4px; }
