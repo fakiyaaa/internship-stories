@@ -179,19 +179,29 @@ async function approveStory(id) {
     saved: false
   }
 
-  const { error } = await supabase
+  /* INSERT INTO STORIES TABLE */
+
+  const { error: insertError } = await supabase
     .from("stories")
     .insert([publishedStory])
 
-  if (error) {
-    console.error(error)
+  if (insertError) {
+    console.error("Insert error:", insertError)
     return
   }
 
-  await supabase
+  /* DELETE FROM SUBMISSIONS TABLE */
+
+  const { error: deleteError } = await supabase
     .from("submissions")
     .delete()
     .eq("id", id)
+
+  if (deleteError) {
+    console.error("Delete error:", deleteError)
+  }
+
+  /* UPDATE FRONTEND STATE */
 
   setPendingStories(pendingStories.filter(s => s.id !== id))
   setStories([publishedStory, ...stories])

@@ -22,7 +22,7 @@ function StoryPage({ story, setPage }) {
         </p>
 
         <p className="story-body">
-          {story.summary}
+          {story.article}
         </p>
 
       </article>
