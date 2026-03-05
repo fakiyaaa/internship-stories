@@ -3,26 +3,38 @@ import "../styles/newstory.css"
 
 function NewStoryPage({ submitStory, setPage }) {
 
-  const [company, setCompany] = useState("")
-  const [role, setRole] = useState("")
-  const [headline, setHeadline] = useState("")
-  const [summary, setSummary] = useState("")
+  const [form, setForm] = useState({
+    company: "",
+    role: "",
+    location: "",
+    season: "",
+    applicationProcess: "",
+    interviewProcess: "",
+    preparation: "",
+    team: "",
+    project: "",
+    techStack: "",
+    challenge: "",
+    advice: ""
+  })
+
+  function handleChange(e) {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    })
+  }
 
   function handleSubmit(e) {
     e.preventDefault()
 
-    const newStory = {
+    const submission = {
       id: Date.now(),
-      company,
-      role,
-      headline,
-      summary,
-      likes: 0,
-      saved: false,
+      ...form,
       status: "pending"
     }
 
-    submitStory(newStory)
+    submitStory(submission)
 
     setPage("home")
   }
@@ -34,28 +46,96 @@ function NewStoryPage({ submitStory, setPage }) {
 
       <form onSubmit={handleSubmit}>
 
+        <h3>Internship Basics</h3>
+
         <input
+          name="company"
           placeholder="Company"
-          value={company}
-          onChange={(e) => setCompany(e.target.value)}
+          value={form.company}
+          onChange={handleChange}
         />
 
         <input
+          name="role"
           placeholder="Role"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
+          value={form.role}
+          onChange={handleChange}
         />
 
         <input
-          placeholder="Headline"
-          value={headline}
-          onChange={(e) => setHeadline(e.target.value)}
+          name="location"
+          placeholder="Location"
+          value={form.location}
+          onChange={handleChange}
+        />
+
+        <input
+          name="season"
+          placeholder="Season (Summer 2025)"
+          value={form.season}
+          onChange={handleChange}
+        />
+
+        <h3>Getting the Internship</h3>
+
+        <textarea
+          name="applicationProcess"
+          placeholder="How did you apply?"
+          value={form.applicationProcess}
+          onChange={handleChange}
         />
 
         <textarea
-          placeholder="Tell your story..."
-          value={summary}
-          onChange={(e) => setSummary(e.target.value)}
+          name="interviewProcess"
+          placeholder="Describe the interview stages"
+          value={form.interviewProcess}
+          onChange={handleChange}
+        />
+
+        <textarea
+          name="preparation"
+          placeholder="What preparation helped the most?"
+          value={form.preparation}
+          onChange={handleChange}
+        />
+
+        <h3>Internship Work</h3>
+
+        <textarea
+          name="team"
+          placeholder="What team did you work on?"
+          value={form.team}
+          onChange={handleChange}
+        />
+
+        <textarea
+          name="project"
+          placeholder="What project did you work on?"
+          value={form.project}
+          onChange={handleChange}
+        />
+
+        <textarea
+          name="techStack"
+          placeholder="Technologies you used"
+          value={form.techStack}
+          onChange={handleChange}
+        />
+
+        <textarea
+          name="challenge"
+          placeholder="What was the hardest challenge?"
+          value={form.challenge}
+          onChange={handleChange}
+        />
+
+        <h3>Advice</h3>
+
+        <textarea
+          name="advice"
+          placeholder="Advice for future applicants"
+          value={form.advice}
+          onChange={handleChange}
         />
 
         <button type="submit">

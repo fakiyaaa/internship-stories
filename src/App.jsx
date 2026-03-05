@@ -3,11 +3,12 @@ import { useState, useEffect } from "react"
 import Header from "./components/Header"
 import HomePage from "./components/HomePage"
 import StoryPage from "./components/StoryPage"
-
+import NewStoryPage from "./components/NewStoryPage"
 
 function App() {
   const [page, setPage] = useState("home")
   const [selectedStory, setSelectedStory] = useState(null)  
+  const [pendingStories, setPendingStories] = useState([])
   const [stories, setStories] = useState(() => {
 
     const savedStories = localStorage.getItem("stories")
@@ -66,8 +67,9 @@ function App() {
       )
     )
   }
-
-
+    function submitStory(newStory) {
+      setPendingStories([...pendingStories, newStory])
+    }
 
   return (
     <div>
@@ -85,7 +87,12 @@ function App() {
         />
       )}
 
-      {page === "new" && <p>New Story Page</p>}
+      {page === "new" && (
+        <NewStoryPage
+          submitStory={submitStory}
+          setPage={setPage}
+        />
+      )}
       {page === "story" && (
         <StoryPage story={selectedStory} setPage={setPage} />
       )}
