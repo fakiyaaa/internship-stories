@@ -1,0 +1,65 @@
+.admin-page {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.admin-card {
+  background: white;
+  border: 1px solid var(--sand);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.admin-answers {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.admin-article textarea {
+  width: 100%;
+  min-height: 250px;
+  border: 1px solid var(--sand);
+  border-radius: 8px;
+  padding: 12px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.generate-btn {
+  padding: 8px 14px;
+  border: none;
+  background: var(--ink);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.admin-actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+}
+
+.approve-btn {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.reject-btn {
+  background: #c62828;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+}

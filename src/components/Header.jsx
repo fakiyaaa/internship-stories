@@ -15,6 +15,10 @@ function Header({ setPage }) {
       <button className="btn-primary" onClick={() => setPage("new")}>
         Share a story
       </button>
+
+      <button onClick={() => setPage("admin")}>
+        Admin
+      </button>
     </header>
   )
 }
