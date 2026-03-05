@@ -1,3 +1,4 @@
+import "../styles/header.css"
 function Header({ setPage }) {
   return (
     <header>

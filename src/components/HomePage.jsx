@@ -1,5 +1,5 @@
 import StoryCard from "./StoryCard"
-
+import "../styles/homepage.css"
 function HomePage({ stories, setSelectedStory, setPage, onLike, onSave }) {
   return (
     <div className="home-page">

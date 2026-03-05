@@ -1,3 +1,4 @@
+import "../styles/storypage.css"
 function StoryPage({ story, setPage }) {
 
   if (!story) return null
@@ -5,17 +6,26 @@ function StoryPage({ story, setPage }) {
   return (
     <div className="story-page">
 
-      <button onClick={() => setPage("home")}>
-        ← Back
+      <button className="back-btn" onClick={() => setPage("home")}>
+        ← Back to stories
       </button>
 
-      <h1>{story.headline}</h1>
+      <article className="story-content">
 
-      <p>
-        <strong>{story.company}</strong> • {story.role}
-      </p>
+        <h1 className="story-title">
+          {story.headline}
+        </h1>
 
-      <p>{story.summary}</p>
+        <p className="story-meta">
+          <strong>{story.company}</strong>
+          <span> • {story.role}</span>
+        </p>
+
+        <p className="story-body">
+          {story.summary}
+        </p>
+
+      </article>
 
     </div>
   )

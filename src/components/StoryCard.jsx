@@ -1,3 +1,5 @@
+import "../styles/storycard.css"
+
 function StoryCard({ story, onClick, onLike, onSave }) {
   return (
     <div className="story-card" onClick={onClick}>
