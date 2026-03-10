@@ -1,4 +1,5 @@
 import "../styles/admin.css"
+import { useState } from "react"
 
 function AdminPage({
   pendingStories,
@@ -7,6 +8,36 @@ function AdminPage({
   generateArticle,
   updateGeneratedArticle
 }) {
+
+  const [unlocked, setUnlocked] = useState(false)
+  const [input, setInput] = useState("")
+  const [error, setError] = useState(false)
+
+  function handleLogin() {
+    if (input === "1235") {
+      setUnlocked(true)
+      setError(false)
+    } else {
+      setError(true)
+    }
+  }
+
+  if (!unlocked) {
+    return (
+      <div className="admin-lock">
+        <h2>Admin Access</h2>
+        <input
+          type="password"
+          placeholder="Enter password"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+        />
+        <button onClick={handleLogin}>Enter</button>
+        {error && <p className="error">Incorrect password</p>}
+      </div>
+    )
+  }
 
   return (
     <div className="admin-page">
@@ -23,8 +54,6 @@ function AdminPage({
 
           <div className="admin-layout">
 
-            {/* LEFT SIDE → RAW ANSWERS */}
-
             <div className="admin-answers">
 
               <h3>{story.company} — {story.role}</h3>
@@ -40,9 +69,6 @@ function AdminPage({
 
             </div>
 
-
-            {/* RIGHT SIDE → GENERATED ARTICLE */}
-
             <div className="admin-article">
 
               <h4>Generated Article</h4>
@@ -57,28 +83,24 @@ function AdminPage({
               )}
 
               {story.generatedArticle && (
-
                 <textarea
                   value={story.generatedArticle}
                   onChange={(e) =>
                     updateGeneratedArticle(story.id, e.target.value)
                   }
                 />
-
               )}
 
             </div>
 
           </div>
 
-
-          {/* ACTION BUTTONS */}
-
           <div className="admin-actions">
 
             <button
               onClick={() => approveStory(story.id)}
               className="approve-btn"
+              disabled={!story.generatedArticle}
             >
               Approve
             </button>

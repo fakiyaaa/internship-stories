@@ -172,8 +172,9 @@ async function approveStory(id) {
   const publishedStory = {
     company: story.company,
     role: story.role,
-    headline: `My ${story.role} Internship at ${story.company}`,
-    summary: article.slice(0, 120) + "...",
+    headline: `My ${story.company} Internship as a ${story.role}`,
+
+    summary: article ? article.slice(0, 120) + "..." : `${story.role} internship at ${story.company} — ${story.location}`,
     article: article,
     likes: 0,
     saved: false

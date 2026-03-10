@@ -18,6 +18,8 @@ function NewStoryPage({ submitStory, setPage }) {
     advice: ""
   })
 
+  const [loading, setLoading] = useState(false)
+
   function handleChange(e) {
     setForm({
       ...form,
@@ -25,20 +27,44 @@ function NewStoryPage({ submitStory, setPage }) {
     })
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
 
-    const submission = {
-      id: Date.now(),
-      ...form,
-      status: "pending"
+    setLoading(true)
+
+    try {
+
+      const response = await fetch("/api/generate-story", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(form)
+      })
+
+      const data = await response.json()
+
+      const article = data.article
+
+      const submission = {
+        id: Date.now(),
+        ...form,
+        article,
+        status: "pending"
+      }
+
+      submitStory(submission)
+
+      setPage("home")
+
+    } catch (err) {
+      console.error("Error generating article:", err)
     }
 
-    submitStory(submission)
-
-    setPage("home")
+    setLoading(false)
   }
 
+  
   return (
     <div className="new-story-page">
 
