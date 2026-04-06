@@ -50,7 +50,7 @@ function App() {
 
   useEffect(() => {
 
-    async function loadPending() {
+    async function loadSubmissions() {
 
       const { data, error } = await supabase
         .from("submissions")
@@ -66,7 +66,7 @@ function App() {
 
     }
 
-    loadPending()
+    loadSubmissions()
 
   }, [])
 
@@ -107,11 +107,10 @@ function App() {
   async function submitStory(newStory) {
 
     const submission = {
-      company: newStory.company, 
+      company: newStory.company,
       role: newStory.role,
       location: newStory.location,
       season: newStory.season,
-
       applicationprocess: newStory.applicationProcess,
       interviewprocess: newStory.interviewProcess,
       preparation: newStory.preparation,
@@ -120,117 +119,71 @@ function App() {
       techstack: newStory.techStack,
       challenge: newStory.challenge,
       advice: newStory.advice,
-      status: newStory.status
+      status: "pending"
     }
 
     const { data, error } = await supabase
       .from("submissions")
       .insert([submission])
-    console.log(data, error)
+      .select()
 
     if (error) {
       console.error(error)
-      return
+      throw error
     }
 
-    setPage("home")
+    if (data) {
+      setPendingStories(prev => [data[0], ...prev])
+    }
 
   }
 
-  useEffect(() => {
-
-  async function loadSubmissions() {
-
-    const { data, error } = await supabase
-      .from("submissions")
-      .select("*")
-      .order("created_at", { ascending: false })
-
-    if (error) {
-      console.error(error)
-      return
-    }
-
-    setPendingStories(data)
-
-  }
-
-  loadSubmissions()
-
-}, []) 
   /* ===============================
      ADMIN APPROVE STORY
   =============================== */
 
-async function approveStory(id) {
+  async function approveStory(id) {
 
-  const story = pendingStories.find(s => s.id === id)
-  if (!story) return
+    const story = pendingStories.find(s => s.id === id)
+    if (!story) return
 
-  const article = story.generatedArticle || ""
+    const article = story.generatedArticle || ""
 
-  const publishedStory = {
-    company: story.company,
-    role: story.role,
-    headline: `My ${story.company} Internship as a ${story.role}`,
+    const publishedStory = {
+      company: story.company,
+      role: story.role,
+      headline: `My ${story.company} Internship as a ${story.role}`,
+      summary: article ? article.slice(0, 120) + "..." : `${story.role} internship at ${story.company} — ${story.location}`,
+      article: article,
+      likes: 0,
+      saved: false
+    }
 
-    summary: article ? article.slice(0, 120) + "..." : `${story.role} internship at ${story.company} — ${story.location}`,
-    article: article,
-    likes: 0,
-    saved: false
-  }
-
-  /* INSERT INTO STORIES TABLE */
-
-  const { error: insertError } = await supabase
-    .from("stories")
-    .insert([publishedStory])
-
-  if (insertError) {
-    console.error("Insert error:", insertError)
-    return
-  }
-
-  /* DELETE FROM SUBMISSIONS TABLE */
-
-  const { error: deleteError } = await supabase
-    .from("submissions")
-    .delete()
-    .eq("id", id)
-
-  if (deleteError) {
-    console.error("Delete error:", deleteError)
-  }
-
-  /* UPDATE FRONTEND STATE */
-
-  setPendingStories(pendingStories.filter(s => s.id !== id))
-  setStories([publishedStory, ...stories])
-}
-  /* ===============================
-     REJECT STORY
-  =============================== */
-
-  useEffect(() => {
-
-  async function loadStories() {
-
-    const { data, error } = await supabase
+    const { data: insertData, error: insertError } = await supabase
       .from("stories")
-      .select("*")
-      .order("created_at", { ascending: false })
+      .insert([publishedStory])
+      .select()
 
-    if (error) {
-      console.error(error)
+    if (insertError) {
+      console.error("Insert error:", insertError)
       return
     }
 
-    setStories(data)
+    const { error: deleteError } = await supabase
+      .from("submissions")
+      .delete()
+      .eq("id", id)
+
+    if (deleteError) {
+      console.error("Delete error:", deleteError)
+    }
+
+    setPendingStories(prev => prev.filter(s => s.id !== id))
+    if (insertData) {
+      setStories(prev => [insertData[0], ...prev])
+    }
+
   }
-
-  loadStories()
-
-}, [])
 
   async function rejectStory(id) {
 
@@ -250,29 +203,49 @@ async function approveStory(id) {
      AI ARTICLE GENERATION
   =============================== */
 
-  function generateArticle(story) {
+  async function generateArticle(story) {
 
-    const article = `
-How I Landed a ${story.role} Internship at ${story.company}
-
-I applied for the ${story.role} role at ${story.company}. The process involved several interview rounds and technical discussions.
-
-Interview Process
-${story.interviewProcess || "The interview included behavioral and technical questions."}
-
-Internship Project
-${story.project || "During the internship I worked on meaningful projects with my team."}
-
-Overall, the experience was incredibly valuable and helped me develop both technical and professional skills.
-`
-
-    const updated = pendingStories.map(s =>
-      s.id === story.id
-        ? { ...s, generatedArticle: article }
-        : s
+    setPendingStories(prev =>
+      prev.map(s => s.id === story.id ? { ...s, generating: true } : s)
     )
 
-    setPendingStories(updated)
+    try {
+
+      const response = await fetch("/api/generate-story", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company: story.company,
+          role: story.role,
+          location: story.location,
+          season: story.season,
+          applicationProcess: story.applicationprocess,
+          interviewProcess: story.interviewprocess,
+          preparation: story.preparation,
+          team: story.team,
+          project: story.project,
+          techStack: story.techstack,
+          challenge: story.challenge,
+          advice: story.advice,
+        })
+      })
+
+      const data = await response.json()
+
+      setPendingStories(prev =>
+        prev.map(s =>
+          s.id === story.id
+            ? { ...s, generatedArticle: data.article, generating: false }
+            : s
+        )
+      )
+
+    } catch (err) {
+      console.error("Error generating article:", err)
+      setPendingStories(prev =>
+        prev.map(s => s.id === story.id ? { ...s, generating: false, generateError: err.message } : s)
+      )
+    }
 
   }
 

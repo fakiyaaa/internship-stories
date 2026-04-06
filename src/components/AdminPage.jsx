@@ -77,9 +77,16 @@ function AdminPage({
                 <button
                   onClick={() => generateArticle(story)}
                   className="generate-btn"
+                  disabled={story.generating}
                 >
-                  Generate Article
+                  {story.generating ? "Generating..." : "Generate Article"}
                 </button>
+              )}
+
+              {story.generateError && (
+                <p style={{ color: "red", fontSize: "13px", marginTop: "8px" }}>
+                  Error: {story.generateError}
+                </p>
               )}
 
               {story.generatedArticle && (

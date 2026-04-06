@@ -33,32 +33,10 @@ function NewStoryPage({ submitStory, setPage }) {
     setLoading(true)
 
     try {
-
-      const response = await fetch("/api/generate-story", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(form)
-      })
-
-      const data = await response.json()
-
-      const article = data.article
-
-      const submission = {
-        id: Date.now(),
-        ...form,
-        article,
-        status: "pending"
-      }
-
-      submitStory(submission)
-
+      await submitStory(form)
       setPage("home")
-
     } catch (err) {
-      console.error("Error generating article:", err)
+      console.error("Error submitting story:", err)
     }
 
     setLoading(false)
