@@ -1,7 +1,16 @@
+import dotenv from "dotenv"
+import { fileURLToPath } from "url"
+import { dirname, join } from "path"
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+dotenv.config({ path: join(__dirname, ".env") })
 import express from "express"
+import Groq from "groq-sdk"
 
 const app = express()
 app.use(express.json())
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
 app.post("/api/generate-story", async (req, res) => {
   const data = req.body
@@ -10,43 +19,42 @@ app.post("/api/generate-story", async (req, res) => {
 Rewrite internship survey responses into a short internship story article (2-4 paragraphs).
 
 Rules:
-- Only use the information provided
-- Do not exaggerate or invent details
+- ONLY use the information explicitly provided below
+- If a field is blank or says "N/A", skip it entirely — do NOT invent or guess details for it
+- Do not add facts, names, technologies, or experiences that are not in the responses
+- Do not exaggerate
 - Keep the tone natural and first-person
 
-Company: ${data.company}
-Role: ${data.role}
-Location: ${data.location}
-Season: ${data.season}
+Responses:
+Company: ${data.company || "not provided"}
+Role: ${data.role || "not provided"}
+Location: ${data.location || "not provided"}
+Season: ${data.season || "not provided"}
 
-How they applied: ${data.applicationProcess}
-Interview stages: ${data.interviewProcess}
-Preparation: ${data.preparation}
+How they applied: ${data.applicationProcess || "not provided"}
+Interview stages: ${data.interviewProcess || "not provided"}
+Preparation: ${data.preparation || "not provided"}
 
-Team: ${data.team}
-Project: ${data.project}
-Technologies: ${data.techStack}
-Hardest challenge: ${data.challenge}
-Advice: ${data.advice}
+Team: ${data.team || "not provided"}
+Project: ${data.project || "not provided"}
+Technologies: ${data.techStack || "not provided"}
+Hardest challenge: ${data.challenge || "not provided"}
+Advice: ${data.advice || "not provided"}
+
+If a field says "not provided", do not mention it in the article at all.
 `
 
   try {
-    const response = await fetch("http://localhost:11434/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "llama3",
-        messages: [{ role: "user", content: prompt }],
-        stream: false,
-        options: { temperature: 0.1 },
-      }),
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.1,
     })
 
-    const result = await response.json()
-    res.json({ article: result.message.content })
+    res.json({ article: completion.choices[0].message.content })
   } catch (err) {
-    console.error("Ollama error:", err.message)
-    res.status(500).json({ error: "Failed to generate article. Is Ollama running?" })
+    console.error("Groq error:", err.message)
+    res.status(500).json({ error: "Failed to generate article." })
   }
 })
 

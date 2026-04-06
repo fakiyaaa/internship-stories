@@ -232,6 +232,10 @@ function App() {
 
       const data = await response.json()
 
+      if (!response.ok || !data.article) {
+        throw new Error(data.error || "No article returned")
+      }
+
       setPendingStories(prev =>
         prev.map(s =>
           s.id === story.id
