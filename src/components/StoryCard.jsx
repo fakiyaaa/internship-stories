@@ -1,6 +1,6 @@
 import "../styles/storycard.css"
 
-function StoryCard({ story, onClick, onLike, onSave }) {
+function StoryCard({ story, onClick, onLike, onSave, saved }) {
   return (
     <div className="story-card" onClick={onClick}>
       <h3>{story.headline}</h3>
@@ -28,7 +28,7 @@ function StoryCard({ story, onClick, onLike, onSave }) {
             onSave(story.id)
           }}
         >
-          {story.saved ? "🔖 Saved" : "🔖 Save"}
+          {saved ? "🔖 Saved" : "🔖 Save"}
         </button>
       </div>
     </div>

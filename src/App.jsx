@@ -5,6 +5,8 @@ import HomePage from "./components/HomePage"
 import StoryPage from "./components/StoryPage"
 import NewStoryPage from "./components/NewStoryPage"
 import AdminPage from "./components/AdminPage"
+import AuthPage from "./components/AuthPage"
+import SavedPage from "./components/SavedPage"
 
 import { supabase } from "./lib/supabase"
 
@@ -13,9 +15,11 @@ function App() {
   const [page, setPage] = useState("home")
   const [selectedStory, setSelectedStory] = useState(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [user, setUser] = useState(null)
 
   const [stories, setStories] = useState([])
   const [pendingStories, setPendingStories] = useState([])
+  const [savedIds, setSavedIds] = useState(new Set())
 
   /* ===============================
      LOAD STORIES FROM SUPABASE
@@ -72,31 +76,80 @@ function App() {
 
 
   /* ===============================
+     AUTH
+  =============================== */
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setUser(data.session?.user ?? null)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  async function signOut() {
+    await supabase.auth.signOut()
+    setSavedIds(new Set())
+    setPage("home")
+  }
+
+
+  /* ===============================
+     LOAD USER SAVES
+  =============================== */
+
+  useEffect(() => {
+    if (!user) return
+
+    async function loadSaves() {
+      const { data, error } = await supabase
+        .from("user_saves")
+        .select("story_id")
+        .eq("user_id", user.id)
+
+      if (error) { console.error(error); return }
+
+      setSavedIds(new Set(data.map(r => r.story_id)))
+    }
+
+    loadSaves()
+  }, [user])
+
+
+  /* ===============================
      STORY INTERACTIONS
   =============================== */
 
-  function handleLike(id) {
+  async function handleLike(id) {
+    if (!user) { setPage("auth"); return }
 
-    setStories(
-      stories.map(story =>
-        story.id === id
-          ? { ...story, likes: story.likes + 1 }
-          : story
-      )
-    )
+    const story = stories.find(s => s.id === id)
+    const newLikes = (story.likes || 0) + 1
 
+    setStories(stories.map(s => s.id === id ? { ...s, likes: newLikes } : s))
+
+    await supabase
+      .from("stories")
+      .update({ likes: newLikes })
+      .eq("id", id)
   }
 
-  function handleSave(id) {
+  async function handleSave(id) {
+    if (!user) { setPage("auth"); return }
 
-    setStories(
-      stories.map(story =>
-        story.id === id
-          ? { ...story, saved: !story.saved }
-          : story
-      )
-    )
+    const alreadySaved = savedIds.has(id)
 
+    if (alreadySaved) {
+      setSavedIds(prev => { const next = new Set(prev); next.delete(id); return next })
+      await supabase.from("user_saves").delete().eq("user_id", user.id).eq("story_id", id)
+    } else {
+      setSavedIds(prev => new Set(prev).add(id))
+      await supabase.from("user_saves").insert({ user_id: user.id, story_id: id })
+    }
   }
 
 
@@ -105,6 +158,7 @@ function App() {
   =============================== */
 
   async function submitStory(newStory) {
+    if (!user) { setPage("auth"); return }
 
     const submission = {
       company: newStory.company,
@@ -323,7 +377,7 @@ function App() {
 
       <h1>Intern Stories</h1>
 
-      <Header setPage={setPage} />
+      <Header setPage={setPage} user={user} onSignOut={signOut} />
 
       {page === "home" && (
 
@@ -335,6 +389,7 @@ function App() {
           setPage={setPage}
           onLike={handleLike}
           onSave={handleSave}
+          savedIds={savedIds}
         />
 
       )}
@@ -355,6 +410,22 @@ function App() {
           setPage={setPage}
         />
 
+      )}
+
+      {page === "saved" && (
+        <SavedPage
+          stories={stories}
+          savedIds={savedIds}
+          onLike={handleLike}
+          onSave={handleSave}
+          setSelectedStory={setSelectedStory}
+          setPage={setPage}
+          user={user}
+        />
+      )}
+
+      {page === "auth" && (
+        <AuthPage setPage={setPage} />
       )}
 
       {page === "admin" && (

@@ -7,6 +7,7 @@ function HomePage({
   setPage,
   onLike,
   onSave,
+  savedIds,
   searchQuery,
   setSearchQuery
 }) {
@@ -40,6 +41,7 @@ function HomePage({
             }}
             onLike={onLike}
             onSave={onSave}
+            saved={savedIds?.has(story.id) ?? false}
           />
 
         ))}
