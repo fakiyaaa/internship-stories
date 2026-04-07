@@ -272,6 +272,29 @@ function App() {
 
 
   /* ===============================
+     EDIT PUBLISHED ARTICLE
+  =============================== */
+
+  async function editPublishedArticle(id, newText) {
+
+    const { error } = await supabase
+      .from("stories")
+      .update({ article: newText })
+      .eq("id", id)
+
+    if (error) {
+      console.error("Error updating article:", error)
+      return
+    }
+
+    setStories(prev =>
+      prev.map(s => s.id === id ? { ...s, article: newText } : s)
+    )
+
+  }
+
+
+  /* ===============================
      SEARCH FILTER
   =============================== */
 
@@ -342,6 +365,8 @@ function App() {
           rejectStory={rejectStory}
           generateArticle={generateArticle}
           updateGeneratedArticle={updateGeneratedArticle}
+          publishedStories={stories}
+          editPublishedArticle={editPublishedArticle}
         />
 
       )}

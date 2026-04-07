@@ -6,12 +6,16 @@ function AdminPage({
   approveStory,
   rejectStory,
   generateArticle,
-  updateGeneratedArticle
+  updateGeneratedArticle,
+  publishedStories,
+  editPublishedArticle
 }) {
 
   const [unlocked, setUnlocked] = useState(false)
   const [input, setInput] = useState("")
   const [error, setError] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+  const [editText, setEditText] = useState("")
 
   function handleLogin() {
     if (input === "1235") {
@@ -39,8 +43,45 @@ function AdminPage({
     )
   }
 
+  function startEdit(story) {
+    setEditingId(story.id)
+    setEditText(story.article || "")
+  }
+
+  async function saveEdit(id) {
+    await editPublishedArticle(id, editText)
+    setEditingId(null)
+  }
+
   return (
     <div className="admin-page">
+
+      <h2>Published Stories</h2>
+
+      {publishedStories.length === 0 && <p>No published stories yet.</p>}
+
+      {publishedStories.map((story) => (
+        <div key={story.id} className="admin-card">
+          <h3>{story.company} — {story.role}</h3>
+          <p className="story-headline">{story.headline}</p>
+
+          {editingId === story.id ? (
+            <>
+              <textarea
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                rows={10}
+              />
+              <div className="admin-actions">
+                <button className="approve-btn" onClick={() => saveEdit(story.id)}>Save</button>
+                <button className="reject-btn" onClick={() => setEditingId(null)}>Cancel</button>
+              </div>
+            </>
+          ) : (
+            <button className="generate-btn" onClick={() => startEdit(story)}>Edit Article</button>
+          )}
+        </div>
+      ))}
 
       <h2>Pending Submissions</h2>
 

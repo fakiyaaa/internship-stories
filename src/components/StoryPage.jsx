@@ -21,9 +21,11 @@ function StoryPage({ story, setPage }) {
           <span> • {story.role}</span>
         </p>
 
-        <p className="story-body">
-          {story.article}
-        </p>
+        <div className="story-body">
+          {story.article?.split("\n\n").filter(p => p.trim()).map((para, i) => (
+            <p key={i}>{para.trim()}</p>
+          ))}
+        </div>
 
       </article>
 

@@ -16,7 +16,7 @@ app.post("/api/generate-story", async (req, res) => {
   const data = req.body
 
   const prompt = `
-Rewrite internship survey responses into a short internship story article (2-4 paragraphs).
+Rewrite internship survey responses into a short internship story article with exactly 3-4 paragraphs. Separate each paragraph with a blank line. Do not use bullet points or headers — only plain paragraphs.
 
 Rules:
 - ONLY use the information explicitly provided below
