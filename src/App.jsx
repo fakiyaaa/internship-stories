@@ -306,14 +306,17 @@ function App() {
 
   async function rejectStory(id) {
 
-    await supabase
+    const { error } = await supabase
       .from("submissions")
       .delete()
       .eq("id", id)
 
-    setPendingStories(
-      pendingStories.filter(s => s.id !== id)
-    )
+    if (error) {
+      alert("Reject failed: " + error.message)
+      return
+    }
+
+    setPendingStories(pendingStories.filter(s => s.id !== id))
 
   }
 
