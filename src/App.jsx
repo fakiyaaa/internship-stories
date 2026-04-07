@@ -92,7 +92,14 @@ function App() {
       setUser(u)
 
       if (event === "SIGNED_IN" && u) {
-        await supabase.from("profiles").upsert({ id: u.id }, { onConflict: "id", ignoreDuplicates: true })
+        const meta = u.user_metadata || {}
+        await supabase.from("profiles").upsert({
+          id: u.id,
+          first_name: meta.first_name || null,
+          last_name: meta.last_name || null,
+          school: meta.school || null,
+          bio: meta.bio || null
+        }, { onConflict: "id", ignoreDuplicates: true })
       }
     })
 
@@ -117,13 +124,15 @@ function App() {
 
   useEffect(() => {
     const userIds = [...new Set(stories.map(s => s.user_id).filter(Boolean))]
-    if (userIds.length === 0) return
+    if (user) userIds.push(user.id)
+    const unique = [...new Set(userIds)]
+    if (unique.length === 0) return
 
     async function loadProfiles() {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .in("id", userIds)
+        .in("id", unique)
 
       if (error) { console.error(error); return }
 
@@ -133,7 +142,7 @@ function App() {
     }
 
     loadProfiles()
-  }, [stories])
+  }, [stories, user])
 
 
   /* ===============================
@@ -275,7 +284,7 @@ function App() {
       .select()
 
     if (insertError) {
-      console.error("Insert error:", insertError)
+      alert("Approve failed: " + insertError.message)
       return
     }
 
@@ -285,7 +294,7 @@ function App() {
       .eq("id", id)
 
     if (deleteError) {
-      console.error("Delete error:", deleteError)
+      alert("Could not remove submission: " + deleteError.message)
     }
 
     setPendingStories(prev => prev.filter(s => s.id !== id))
@@ -391,9 +400,11 @@ function App() {
       .from("stories")
       .update({ article: newText })
       .eq("id", id)
+      .select()
 
     if (error) {
-      console.error("Error updating article:", error)
+      console.error("Error updating article:", error.message)
+      alert("Failed to save: " + error.message)
       return
     }
 
@@ -405,12 +416,39 @@ function App() {
 
 
   /* ===============================
+     DELETE PUBLISHED STORY
+  =============================== */
+
+  async function deleteStory(id) {
+    const { error } = await supabase.from("stories").delete().eq("id", id)
+    if (error) {
+      alert("Delete failed: " + error.message)
+      return
+    }
+    setStories(prev => prev.filter(s => s.id !== id))
+  }
+
+
+  /* ===============================
      VIEW PROFILE
   =============================== */
 
-  function viewProfile(userId) {
-    setSelectedProfile(profiles[userId] || { id: userId })
+  async function viewProfile(userId) {
+    let profile = profiles[userId]
+    if (!profile) {
+      const { data } = await supabase.from("profiles").select("*").eq("id", userId).single()
+      if (data) {
+        setProfiles(prev => ({ ...prev, [data.id]: data }))
+        profile = data
+      }
+    }
+    setSelectedProfile(profile || { id: userId })
     setPage("profile")
+  }
+
+  function onProfileSaved(updatedProfile) {
+    setProfiles(prev => ({ ...prev, [updatedProfile.id]: updatedProfile }))
+    setSelectedProfile(updatedProfile)
   }
 
 
@@ -506,6 +544,7 @@ function App() {
           setSelectedStory={setSelectedStory}
           setPage={setPage}
           isOwnProfile={user?.id === selectedProfile.id}
+          onProfileSaved={onProfileSaved}
         />
       )}
 
@@ -523,6 +562,7 @@ function App() {
           updateGeneratedArticle={updateGeneratedArticle}
           publishedStories={stories}
           editPublishedArticle={editPublishedArticle}
+          deleteStory={deleteStory}
         />
 
       )}

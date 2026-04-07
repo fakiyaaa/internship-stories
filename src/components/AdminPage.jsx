@@ -8,7 +8,8 @@ function AdminPage({
   generateArticle,
   updateGeneratedArticle,
   publishedStories,
-  editPublishedArticle
+  editPublishedArticle,
+  deleteStory
 }) {
 
   const [unlocked, setUnlocked] = useState(false)
@@ -78,7 +79,12 @@ function AdminPage({
               </div>
             </>
           ) : (
-            <button className="generate-btn" onClick={() => startEdit(story)}>Edit Article</button>
+            <div className="admin-actions">
+              <button className="generate-btn" onClick={() => startEdit(story)}>Edit Article</button>
+              <button className="reject-btn" onClick={() => {
+                if (window.confirm("Delete this story? This cannot be undone.")) deleteStory(story.id)
+              }}>Delete</button>
+            </div>
           )}
         </div>
       ))}

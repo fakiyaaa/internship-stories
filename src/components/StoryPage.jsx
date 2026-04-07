@@ -21,15 +21,18 @@ function StoryPage({ story, setPage, profile, onViewProfile }) {
           <span> • {story.role}</span>
         </p>
 
-        {profile && (
-          <button className="story-page-author" onClick={() => onViewProfile(story.user_id)}>
-            {profile.avatar_url
-              ? <img src={profile.avatar_url} alt={profile.name} />
-              : <span className="author-initial">{(profile.name || "?")[0].toUpperCase()}</span>
-            }
-            <span>{profile.name || "Anonymous"}</span>
-          </button>
-        )}
+        {profile && (() => {
+          const name = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "Anonymous"
+          return (
+            <button className="story-page-author" onClick={() => onViewProfile(story.user_id)}>
+              {profile.avatar_url
+                ? <img src={profile.avatar_url} alt={name} />
+                : <span className="author-initial">{name[0].toUpperCase()}</span>
+              }
+              <span>{name}</span>
+            </button>
+          )
+        })()}
 
         {story.photo_url && (
           <img src={story.photo_url} alt={story.company} className="story-photo" />

@@ -45,6 +45,17 @@
   color: var(--ink);
 }
 
+.profile-school {
+  font-size: 0.9rem;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.profile-name-row {
+  display: flex;
+  gap: 8px;
+}
+
 .profile-bio {
   color: var(--ink3);
   font-size: 0.95rem;

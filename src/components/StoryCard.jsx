@@ -20,11 +20,16 @@ function StoryCard({ story, onClick, onLike, onSave, saved, profile, onViewProfi
           className="story-author"
           onClick={e => { e.stopPropagation(); onViewProfile(story.user_id) }}
         >
-          {profile.avatar_url
-            ? <img src={profile.avatar_url} alt={profile.name} />
-            : <span className="author-initial">{(profile.name || "?")[0].toUpperCase()}</span>
-          }
-          {profile.name || "Anonymous"}
+          {(() => {
+            const name = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "Anonymous"
+            return <>
+              {profile.avatar_url
+                ? <img src={profile.avatar_url} alt={name} />
+                : <span className="author-initial">{name[0].toUpperCase()}</span>
+              }
+              {name}
+            </>
+          })()}
         </button>
       )}
 
