@@ -205,7 +205,6 @@ function App() {
   =============================== */
 
   async function submitStory(newStory, photoFile) {
-    if (!user) { setPage("auth"); return }
 
     const submission = {
       company: newStory.company,
@@ -221,7 +220,7 @@ function App() {
       challenge: newStory.challenge,
       advice: newStory.advice,
       status: "pending",
-      user_id: user.id
+      user_id: user?.id || null
     }
 
     if (photoFile) {
