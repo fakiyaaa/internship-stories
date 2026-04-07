@@ -8,6 +8,8 @@ function HomePage({
   onLike,
   onSave,
   savedIds,
+  profiles,
+  onViewProfile,
   searchQuery,
   setSearchQuery
 }) {
@@ -42,6 +44,8 @@ function HomePage({
             onLike={onLike}
             onSave={onSave}
             saved={savedIds?.has(story.id) ?? false}
+            profile={story.user_id ? profiles?.[story.user_id] : null}
+            onViewProfile={onViewProfile}
           />
 
         ))}

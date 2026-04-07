@@ -1,7 +1,7 @@
 import StoryCard from "./StoryCard"
 import "../styles/homepage.css"
 
-function SavedPage({ stories, savedIds, onLike, onSave, setSelectedStory, setPage, user }) {
+function SavedPage({ stories, savedIds, onLike, onSave, setSelectedStory, setPage, user, profiles, onViewProfile }) {
 
   if (!user) {
     return (
@@ -29,6 +29,8 @@ function SavedPage({ stories, savedIds, onLike, onSave, setSelectedStory, setPag
               onLike={onLike}
               onSave={onSave}
               saved={true}
+              profile={story.user_id ? profiles?.[story.user_id] : null}
+              onViewProfile={onViewProfile}
             />
           ))}
         </div>

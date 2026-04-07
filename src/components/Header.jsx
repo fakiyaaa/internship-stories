@@ -1,6 +1,6 @@
 import "../styles/header.css"
 
-function Header({ setPage, user, onSignOut }) {
+function Header({ setPage, user, onSignOut, onViewProfile }) {
   return (
     <header>
       <h2>Intern Stories</h2>
@@ -22,7 +22,10 @@ function Header({ setPage, user, onSignOut }) {
       </button>
 
       {user ? (
-        <button onClick={onSignOut}>Sign out</button>
+        <>
+          <button onClick={onViewProfile}>My profile</button>
+          <button onClick={onSignOut}>Sign out</button>
+        </>
       ) : (
         <button onClick={() => setPage("auth")}>Sign in</button>
       )}

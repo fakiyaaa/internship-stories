@@ -1,5 +1,5 @@
 import "../styles/storypage.css"
-function StoryPage({ story, setPage }) {
+function StoryPage({ story, setPage, profile, onViewProfile }) {
 
   if (!story) return null
 
@@ -20,6 +20,20 @@ function StoryPage({ story, setPage }) {
           <strong>{story.company}</strong>
           <span> • {story.role}</span>
         </p>
+
+        {profile && (
+          <button className="story-page-author" onClick={() => onViewProfile(story.user_id)}>
+            {profile.avatar_url
+              ? <img src={profile.avatar_url} alt={profile.name} />
+              : <span className="author-initial">{(profile.name || "?")[0].toUpperCase()}</span>
+            }
+            <span>{profile.name || "Anonymous"}</span>
+          </button>
+        )}
+
+        {story.photo_url && (
+          <img src={story.photo_url} alt={story.company} className="story-photo" />
+        )}
 
         <div className="story-body">
           {story.article?.split("\n\n").filter(p => p.trim()).map((para, i) => (

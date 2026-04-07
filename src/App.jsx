@@ -7,6 +7,7 @@ import NewStoryPage from "./components/NewStoryPage"
 import AdminPage from "./components/AdminPage"
 import AuthPage from "./components/AuthPage"
 import SavedPage from "./components/SavedPage"
+import ProfilePage from "./components/ProfilePage"
 
 import { supabase } from "./lib/supabase"
 
@@ -20,6 +21,8 @@ function App() {
   const [stories, setStories] = useState([])
   const [pendingStories, setPendingStories] = useState([])
   const [savedIds, setSavedIds] = useState(new Set())
+  const [profiles, setProfiles] = useState({})
+  const [selectedProfile, setSelectedProfile] = useState(null)
 
   /* ===============================
      LOAD STORIES FROM SUPABASE
@@ -35,7 +38,7 @@ function App() {
         .order("created_at", { ascending: false })
 
       if (error) {
-        console.error(error)
+        console.error("loadStories error:", error.message, error.code, error.details)
         return
       }
 
@@ -62,7 +65,7 @@ function App() {
         .order("created_at", { ascending: false })
 
       if (error) {
-        console.error(error)
+        console.error("loadSubmissions error:", error.message, error.code, error.details)
         return
       }
 
@@ -84,18 +87,53 @@ function App() {
       setUser(data.session?.user ?? null)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const u = session?.user ?? null
+      setUser(u)
+
+      if (event === "SIGNED_IN" && u) {
+        await supabase.from("profiles").upsert({ id: u.id }, { onConflict: "id", ignoreDuplicates: true })
+      }
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
   async function signOut() {
-    await supabase.auth.signOut()
+    try {
+      await supabase.auth.signOut({ scope: "local" })
+    } catch (e) {
+      // ignore
+    }
+    setUser(null)
     setSavedIds(new Set())
     setPage("home")
   }
+
+
+  /* ===============================
+     LOAD PROFILES
+  =============================== */
+
+  useEffect(() => {
+    const userIds = [...new Set(stories.map(s => s.user_id).filter(Boolean))]
+    if (userIds.length === 0) return
+
+    async function loadProfiles() {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .in("id", userIds)
+
+      if (error) { console.error(error); return }
+
+      const map = {}
+      data.forEach(p => { map[p.id] = p })
+      setProfiles(map)
+    }
+
+    loadProfiles()
+  }, [stories])
 
 
   /* ===============================
@@ -157,7 +195,7 @@ function App() {
      STORY SUBMISSION
   =============================== */
 
-  async function submitStory(newStory) {
+  async function submitStory(newStory, photoFile) {
     if (!user) { setPage("auth"); return }
 
     const submission = {
@@ -173,7 +211,23 @@ function App() {
       techstack: newStory.techStack,
       challenge: newStory.challenge,
       advice: newStory.advice,
-      status: "pending"
+      status: "pending",
+      user_id: user.id
+    }
+
+    if (photoFile) {
+      const ext = photoFile.name.split(".").pop()
+      const path = `${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from("story-photos")
+        .upload(path, photoFile)
+
+      if (uploadError) {
+        console.error("Photo upload error:", uploadError)
+      } else {
+        const { data: urlData } = supabase.storage.from("story-photos").getPublicUrl(path)
+        submission.photo_url = urlData.publicUrl
+      }
     }
 
     const { data, error } = await supabase
@@ -209,6 +263,8 @@ function App() {
       headline: `My ${story.company} Internship as a ${story.role}`,
       summary: article ? article.slice(0, 120) + "..." : `${story.role} internship at ${story.company} — ${story.location}`,
       article: article,
+      photo_url: story.photo_url || null,
+      user_id: story.user_id || null,
       likes: 0,
       saved: false
     }
@@ -349,6 +405,16 @@ function App() {
 
 
   /* ===============================
+     VIEW PROFILE
+  =============================== */
+
+  function viewProfile(userId) {
+    setSelectedProfile(profiles[userId] || { id: userId })
+    setPage("profile")
+  }
+
+
+  /* ===============================
      SEARCH FILTER
   =============================== */
 
@@ -377,7 +443,7 @@ function App() {
 
       <h1>Intern Stories</h1>
 
-      <Header setPage={setPage} user={user} onSignOut={signOut} />
+      <Header setPage={setPage} user={user} onSignOut={signOut} onViewProfile={() => user && viewProfile(user.id)} />
 
       {page === "home" && (
 
@@ -390,6 +456,8 @@ function App() {
           onLike={handleLike}
           onSave={handleSave}
           savedIds={savedIds}
+          profiles={profiles}
+          onViewProfile={viewProfile}
         />
 
       )}
@@ -408,6 +476,8 @@ function App() {
         <StoryPage
           story={selectedStory}
           setPage={setPage}
+          profile={selectedStory?.user_id ? profiles[selectedStory.user_id] : null}
+          onViewProfile={viewProfile}
         />
 
       )}
@@ -421,6 +491,21 @@ function App() {
           setSelectedStory={setSelectedStory}
           setPage={setPage}
           user={user}
+          profiles={profiles}
+          onViewProfile={viewProfile}
+        />
+      )}
+
+      {page === "profile" && selectedProfile && (
+        <ProfilePage
+          profile={selectedProfile}
+          stories={stories}
+          savedIds={savedIds}
+          onLike={handleLike}
+          onSave={handleSave}
+          setSelectedStory={setSelectedStory}
+          setPage={setPage}
+          isOwnProfile={user?.id === selectedProfile.id}
         />
       )}
 
