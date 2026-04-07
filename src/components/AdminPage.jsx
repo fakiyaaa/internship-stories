@@ -1,6 +1,8 @@
 import "../styles/admin.css"
 import { useState } from "react"
 
+const ADMIN_ID = "51c6de19-c328-4ad3-a9e0-156c39ad1c65"
+
 function AdminPage({
   pendingStories,
   approveStory,
@@ -9,37 +11,17 @@ function AdminPage({
   updateGeneratedArticle,
   publishedStories,
   editPublishedArticle,
-  deleteStory
+  deleteStory,
+  user
 }) {
 
-  const [unlocked, setUnlocked] = useState(false)
-  const [input, setInput] = useState("")
-  const [error, setError] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [editText, setEditText] = useState("")
 
-  function handleLogin() {
-    if (input === "1235") {
-      setUnlocked(true)
-      setError(false)
-    } else {
-      setError(true)
-    }
-  }
-
-  if (!unlocked) {
+  if (!user || user.id !== ADMIN_ID) {
     return (
       <div className="admin-lock">
-        <h2>Admin Access</h2>
-        <input
-          type="password"
-          placeholder="Enter password"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-        />
-        <button onClick={handleLogin}>Enter</button>
-        {error && <p className="error">Incorrect password</p>}
+        <p>You don't have access to this page.</p>
       </div>
     )
   }

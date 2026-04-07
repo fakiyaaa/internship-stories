@@ -563,6 +563,7 @@ function App() {
           publishedStories={stories}
           editPublishedArticle={editPublishedArticle}
           deleteStory={deleteStory}
+          user={user}
         />
 
       )}

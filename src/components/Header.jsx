@@ -1,5 +1,7 @@
 import "../styles/header.css"
 
+const ADMIN_ID = "51c6de19-c328-4ad3-a9e0-156c39ad1c65"
+
 function Header({ setPage, user, onSignOut, onViewProfile }) {
   return (
     <header>
@@ -17,9 +19,9 @@ function Header({ setPage, user, onSignOut, onViewProfile }) {
         Share a story
       </button>
 
-      <button onClick={() => setPage("admin")}>
-        Admin
-      </button>
+      {user?.id === ADMIN_ID && (
+        <button onClick={() => setPage("admin")}>Admin</button>
+      )}
 
       {user ? (
         <>
