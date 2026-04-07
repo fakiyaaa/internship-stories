@@ -10,7 +10,6 @@ function ProfilePage({ profile, stories, savedIds, onLike, onSave, setSelectedSt
   const [lastName, setLastName] = useState(profile?.last_name || "")
   const [school, setSchool] = useState(profile?.school || "")
   const [bio, setBio] = useState(profile?.bio || "")
-  const [avatar, setAvatar] = useState(null)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState("")
   const [saveSuccess, setSaveSuccess] = useState(false)
@@ -24,19 +23,6 @@ function ProfilePage({ profile, stories, savedIds, onLike, onSave, setSelectedSt
 
     try {
       const updates = { first_name: firstName, last_name: lastName, school, bio: bio || null }
-
-      if (avatar) {
-        const ext = avatar.name.split(".").pop()
-        const path = `${profile.id}.${ext}`
-        const { error: uploadError } = await supabase.storage
-          .from("story-photos")
-          .upload(path, avatar, { upsert: true })
-
-        if (uploadError) throw new Error("Photo upload failed: " + uploadError.message)
-
-        const { data: urlData } = supabase.storage.from("story-photos").getPublicUrl(path)
-        updates.avatar_url = urlData.publicUrl
-      }
 
       const { data, error } = await supabase
         .from("profiles")
@@ -67,10 +53,7 @@ function ProfilePage({ profile, stories, savedIds, onLike, onSave, setSelectedSt
 
       <div className="profile-header">
         <div className="profile-avatar">
-          {profile.avatar_url
-            ? <img src={profile.avatar_url} alt={displayName} />
-            : <div className="avatar-placeholder">{displayName[0].toUpperCase()}</div>
-          }
+          <div className="avatar-placeholder">{displayName[0].toUpperCase()}</div>
         </div>
 
         <div className="profile-info">
@@ -105,10 +88,6 @@ function ProfilePage({ profile, stories, savedIds, onLike, onSave, setSelectedSt
                 placeholder="Bio (optional)"
                 className="profile-bio-input"
               />
-              <label className="profile-avatar-upload">
-                Change photo
-                <input type="file" accept="image/*" onChange={e => setAvatar(e.target.files[0])} hidden />
-              </label>
               {saveError && <p style={{ color: "red", fontSize: "13px" }}>{saveError}</p>}
               <div className="profile-edit-actions">
                 <button onClick={saveProfile} disabled={saving}>{saving ? "Saving..." : "Save"}</button>

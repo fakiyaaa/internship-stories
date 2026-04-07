@@ -18,28 +18,18 @@ function NewStoryPage({ submitStory, setPage }) {
     advice: ""
   })
 
-  const [photo, setPhoto] = useState(null)
   const [loading, setLoading] = useState(false)
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const [photoError, setPhotoError] = useState("")
-
   async function handleSubmit(e) {
     e.preventDefault()
-
-    if (!photo) {
-      setPhotoError("Please upload a photo.")
-      return
-    }
-
-    setPhotoError("")
     setLoading(true)
 
     try {
-      await submitStory(form, photo)
+      await submitStory(form, null)
       setPage("home")
     } catch (err) {
       console.error("Error submitting story:", err)
@@ -154,24 +144,6 @@ function NewStoryPage({ submitStory, setPage }) {
           value={form.advice}
           onChange={handleChange}
         />
-
-        <h3>Photo</h3>
-
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => { setPhoto(e.target.files[0]); setPhotoError("") }}
-        />
-
-        {photoError && <p style={{ color: "red", fontSize: "13px" }}>{photoError}</p>}
-
-        {photo && (
-          <img
-            src={URL.createObjectURL(photo)}
-            alt="preview"
-            style={{ width: "100%", maxHeight: "240px", objectFit: "cover", borderRadius: "8px", marginTop: "8px" }}
-          />
-        )}
 
         <button type="submit" disabled={loading}>
           {loading ? "Submitting..." : "Submit Story"}
