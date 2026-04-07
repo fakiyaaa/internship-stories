@@ -507,6 +507,7 @@ function App() {
         <NewStoryPage
           submitStory={submitStory}
           setPage={setPage}
+          user={user}
         />
 
       )}

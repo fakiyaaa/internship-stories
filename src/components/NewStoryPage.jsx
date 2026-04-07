@@ -1,7 +1,7 @@
 import { useState } from "react"
 import "../styles/newstory.css"
 
-function NewStoryPage({ submitStory, setPage }) {
+function NewStoryPage({ submitStory, setPage, user }) {
 
   const [form, setForm] = useState({
     company: "",
@@ -58,6 +58,17 @@ function NewStoryPage({ submitStory, setPage }) {
     <div className="new-story-page">
 
       <h2>Submit your internship story</h2>
+
+      {user ? (
+        <p className="author-notice">
+          Submitting as <strong>{user.user_metadata?.first_name || user.email}</strong> — your profile will be linked to this story.
+        </p>
+      ) : (
+        <p className="author-notice">
+          You're not signed in — your story will be published anonymously.{" "}
+          <button type="button" className="inline-link" onClick={() => setPage("auth")}>Sign in</button> to link your profile.
+        </p>
+      )}
 
       <form onSubmit={handleSubmit}>
 
