@@ -19,6 +19,7 @@ function NewStoryPage({ submitStory, setPage }) {
   })
 
   const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -30,12 +31,26 @@ function NewStoryPage({ submitStory, setPage }) {
 
     try {
       await submitStory(form, null)
-      setPage("home")
+      setSubmitted(true)
     } catch (err) {
       console.error("Error submitting story:", err)
     }
 
     setLoading(false)
+  }
+
+  if (submitted) {
+    return (
+      <div className="new-story-page" style={{ textAlign: "center", padding: "60px 20px" }}>
+        <h2>Thank you for sharing your story!</h2>
+        <p style={{ marginTop: "12px", color: "#555" }}>
+          Your submission has been saved. It will be reviewed and published within 1–2 days.
+        </p>
+        <button style={{ marginTop: "24px" }} onClick={() => setPage("home")}>
+          Back to Home
+        </button>
+      </div>
+    )
   }
 
   
